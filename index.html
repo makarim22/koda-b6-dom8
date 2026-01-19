@@ -1,144 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temperature Conversion</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
 
-        .main {
-            margin-bottom: 30px;
-        }
+      .main {
+        margin-bottom: 30px;
+      }
 
-        label {
-            display: block;
-            margin-bottom: 10px;
-        }
+      label {
+        display: block;
+        margin-bottom: 10px;
+      }
 
-        input {
-            padding: 8px;
-            margin-right: 10px;
-            width: 150px;
-        }
+      input {
+        padding: 8px;
+        margin-right: 10px;
+        width: 150px;
+      }
 
-        button {
-            padding: 8px 20px;
-            cursor: pointer;
-        }
+      button {
+        padding: 8px 20px;
+        cursor: pointer;
+      }
 
-        table {
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+      table {
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
 
-        th, td {
-            border: 1px solid black;
-            padding: 10px;
-            text-align: center;
-        }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: center;
+      }
 
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div>
-        <h1>Program Konversi Suhu</h1>
+      <h1>Program Konversi Suhu</h1>
 
-        <p>Ubah Celsius ke Fahrenheit, Kelvin, dan Reamur.</p>
+      <p>Ubah Celsius ke Fahrenheit, Kelvin, dan Reamur.</p>
 
+      <form class="main">
+        <label for="temp">Temperature (Celsius)</label>
+        <input type="text" name="temp" id="temp" />
+        <button type="submit" name="submit">Convert</button>
+        <button type="submit" name="delete">Delete</button>
+      </form>
 
-        <form class="main">
-            <label for="temp">Temperature (Celsius)</label>
-            <input type="text" name="temp" id="temp">
-            <button type="submit" name="submit">Convert</button>
-        </form>
-
-        <div class="result"></div>
+      <div class="result"></div>
     </div>
 
     <script>
-        const form = document.querySelector('form');
-        const temp = document.querySelector('#temp');
-        const result = document.querySelector('.result');
+      const STORAGE_KEY = "history";
 
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
+      const form = document.querySelector("form");
+      const temp = document.querySelector("#temp");
+      const result = document.querySelector(".result");
 
-        const thNumber = document.createElement('th');
-        thNumber.textContent = 'No.';
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
 
-        const thCelsius = document.createElement('th');
-        thCelsius.textContent = 'Celsius';
+      const thNumber = document.createElement("th");
+      thNumber.textContent = "No.";
 
-        const thFahrenheit = document.createElement('th');
-        thFahrenheit.textContent = 'Fahrenheit';
+      const thCelsius = document.createElement("th");
+      thCelsius.textContent = "Celsius";
 
-        const thKelvin = document.createElement('th');
-        thKelvin.textContent = 'Kelvin';
+      const thFahrenheit = document.createElement("th");
+      thFahrenheit.textContent = "Fahrenheit";
 
-        const thReamur = document.createElement('th');
-        thReamur.textContent = 'Reamur';
-        
-        headerRow.appendChild(thNumber);
-        headerRow.appendChild(thCelsius);
-        headerRow.appendChild(thFahrenheit);
-        headerRow.appendChild(thKelvin);
-        headerRow.appendChild(thReamur);
+      const thKelvin = document.createElement("th");
+      thKelvin.textContent = "Kelvin";
 
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-        
-        const tbody = document.createElement('tbody');
-        table.appendChild(tbody);
+      const thReamur = document.createElement("th");
+      thReamur.textContent = "Reamur";
 
-        result.appendChild(table);
+      headerRow.appendChild(thNumber);
+      headerRow.appendChild(thCelsius);
+      headerRow.appendChild(thFahrenheit);
+      headerRow.appendChild(thKelvin);
+      headerRow.appendChild(thReamur);
 
-        let rowNumber = 0;
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
+      const tbody = document.createElement("tbody");
+      table.appendChild(tbody);
 
-            rowNumber++;
+      result.appendChild(table);
 
-            const celsius = parseFloat(temp.value);
-            const fahrenheit = (celsius * 9/5) + 32;
-            const kelvin = celsius + 273.15;
-            const reamur = celsius * 4/5;
+      let rowNumber = 0;
 
-            const row = document.createElement('tr');
+      const history = [];
 
-            const tdNumber = document.createElement('td');
-            tdNumber.textContent = rowNumber;
-            row.appendChild(tdNumber);
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-            const tdCelsius = document.createElement('td');
-            tdCelsius.textContent = celsius.toFixed(2);
+        rowNumber++;
 
-            const tdFahrenheit = document.createElement('td');
-            tdFahrenheit.textContent = fahrenheit.toFixed(2);
+        const celsius = parseFloat(temp.value);
+        const fahrenheit = (celsius * 9) / 5 + 32;
+        const kelvin = celsius + 273.15;
+        const reamur = (celsius * 4) / 5;
+        let history = getHistoryFromStorage();
 
-            const tdKelvin = document.createElement('td');
-            tdKelvin.textContent = kelvin.toFixed(2);
-
-            const tdReamur = document.createElement('td');
-            tdReamur.textContent = reamur.toFixed(2);
-
-            row.appendChild(tdCelsius);
-            row.appendChild(tdFahrenheit);
-            row.appendChild(tdKelvin);
-            row.appendChild(tdReamur);
-
-            tbody.appendChild(row);
+        history.push({
+          celsius: celsius,
+          fahrenheit: fahrenheit,
+          kelvin: kelvin,
+          reamur: reamur,
         });
-       
+
+        saveHistoryToStorage(history);
+
+        rowNumber = history.length;
+
+
+        const row = document.createElement("tr");
+
+        const tdNumber = document.createElement("td");
+        tdNumber.textContent = rowNumber;
+        row.appendChild(tdNumber);
+
+        const tdCelsius = document.createElement("td");
+        tdCelsius.textContent = celsius.toFixed(2);
+
+        const tdFahrenheit = document.createElement("td");
+        tdFahrenheit.textContent = fahrenheit.toFixed(2);
+
+        const tdKelvin = document.createElement("td");
+        tdKelvin.textContent = kelvin.toFixed(2);
+
+        const tdReamur = document.createElement("td");
+        tdReamur.textContent = reamur.toFixed(2);
+
+        row.appendChild(tdCelsius);
+        row.appendChild(tdFahrenheit);
+        row.appendChild(tdKelvin);
+        row.appendChild(tdReamur);
+
+        tbody.appendChild(row);
+      });
+
+      const removeHistory = document.querySelector("button[name='delete']");
+      removeHistory.addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        tbody.innerHTML = "";
+      });
+      
+
+      function displayHistory(history) {
+        tbody.innerHTML = ""; 
+        history.forEach((item, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.celsius.toFixed(2)}</td>
+            <td>${item.fahrenheit.toFixed(2)}</td>
+            <td>${item.kelvin.toFixed(2)}</td>
+            <td>${item.reamur.toFixed(2)}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      function getHistoryFromStorage() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      }
+
+      function saveHistoryToStorage(history) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      }
+
+      function loadHistoryOnPageLoad() {
+        const history = getHistoryFromStorage();
+        if (history.length > 0) {
+          displayHistory(history);
+          rowNumber = history.length;
+        }
+      }
+
+      loadHistoryOnPageLoad();
     </script>
-</body>
+  </body>
 </html>
